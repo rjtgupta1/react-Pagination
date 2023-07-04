@@ -9,20 +9,41 @@ const Home = () => {
   const getData = async () => {
     const response = await axios.get("https://dummyjson.com/products");
     setData(response.data.products);
-    console.log(data[0]);
-  };  
+    console.log(response.data.products);
+  };
+
+  const [pageData, setPageData] = useState([]);
+  const [skip, setSkip] = useState(0);
+  const [gap, setGap] = useState(5);
+  const [totalPage, setTotalPage] = useState();
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     getData();
-  },[]);
+  }, []);
 
-  const handleNext = () =>{
-    alert('next')
-  }
+  useEffect(() => {
+    const _pageData = data.slice(skip, gap);
+    const _totalPage = data.length / 5;
+    setTotalPage(_totalPage);
+    setPageData(_pageData);
+  }, [data, page]);
 
-  const handlePrevious = () =>{
-    alert('previous')
-  }
+  const handleNext = () => {
+    setSkip(skip + 5);
+    setGap(gap + 5);
+    setPage(page + 1);
+    const _pageData = data.slice(skip, gap);
+    setPageData(_pageData);
+  };
+
+  const handlePrevious = () => {
+    setSkip(skip - 5);
+    setGap(gap - 5);
+    setPage(page - 1);
+    const _pageData = data.slice(skip, gap);
+    setPageData(_pageData);
+  };
 
   return (
     <>
@@ -39,11 +60,11 @@ const Home = () => {
               </tr>
             </thead>
             <tbody>
-              { data.length > 0 ? (
-                data.map((product) => {
+              {pageData.length > 0 ? (
+                pageData.map((product) => {
                   return (
                     <>
-                      <tr>
+                      <tr key={product.description}>
                         <td>{product.id}</td>
                         <td>{product.title}</td>
                         <td>${product.price}</td>
@@ -61,7 +82,7 @@ const Home = () => {
                 })
               ) : (
                 <div className="container d-flex justify-content-end">
-                  <span>Loading..... </span>{" "}
+                  <span>Loading..... </span>
                   <Spinner animation="border" variant="primary" />
                   <br />
                 </div>
@@ -72,9 +93,22 @@ const Home = () => {
       </div>
       <div className="d-flex justify-content-center">
         <Pagination>
-          <Pagination.Prev onClick={handlePrevious} />
-          <Pagination.Item>{1}</Pagination.Item>
-          <Pagination.Next onClick={handleNext} />
+          <Pagination.Prev onClick={handlePrevious} disabled={skip === 0} />
+          {/* <Pagination.Item>{page}/{totalPage}</Pagination.Item> */}
+          {
+          Array(totalPage)
+            .fill(null)
+            .map((element, index) => {
+              return (
+                <>
+                  <Pagination.Item active={page === index + 1}>
+                    {index + 1}
+                  </Pagination.Item>
+                </>
+              );
+            })
+          }
+          <Pagination.Next onClick={handleNext} disabled={page === totalPage} />
         </Pagination>
       </div>
     </>
