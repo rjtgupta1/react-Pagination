@@ -45,6 +45,17 @@ const Home = () => {
     setPageData(_pageData);
   };
 
+  const handlePageSelection = (index) => {
+    let _gap = (index+1)*5;
+    let _skip = _gap - 5;
+    let _page = index + 1;
+
+    // setting values 
+    setGap(_gap);
+    setSkip(_skip);
+    setPage(_page);
+  }
+
   return (
     <>
       <div className="container">
@@ -101,7 +112,7 @@ const Home = () => {
             .map((element, index) => {
               return (
                 <>
-                  <Pagination.Item active={page === index + 1}>
+                  <Pagination.Item onClick={ ()=>{ handlePageSelection(index) } } active={page === index + 1}>
                     {index + 1}
                   </Pagination.Item>
                 </>
